@@ -11,8 +11,7 @@ const UsersList = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [professions, setProfession] = useState();
     const [selectedProf, setSelectedProf] = useState();
-    const [searchValue, setSearchValue] = useState("");
-
+    const [searchQuery, setSearchQuery] = useState("");
     const [sortBy, setSortBy] = useState({ path: "name", order: "asc" });
     const pageSize = 8;
     const [users, setUsers] = useState();
@@ -38,11 +37,15 @@ const UsersList = () => {
 
     useEffect(() => {
         setCurrentPage(1);
-    }, [selectedProf]);
+    }, [selectedProf, searchQuery]);
 
     const handleProfessionSelect = (item) => {
+        if (searchQuery !== "") setSearchQuery("");
         setSelectedProf(item);
-        setSearchValue("");
+    };
+    const handleSearchQuery = ({ target }) => {
+        setSelectedProf(undefined);
+        setSearchQuery(target.value);
     };
 
     const handlePageChange = (pageIndex) => {
@@ -53,16 +56,20 @@ const UsersList = () => {
     };
 
     if (users) {
-        const searchUser = users.filter((user) => {
-            return user.name.toLowerCase().includes(searchValue.toLowerCase());
-        });
-        const filteredUsers = selectedProf
-            ? searchUser.filter(
+        const filteredUsers = searchQuery
+            ? users.filter(
+                  (user) =>
+                      user.name
+                          .toLowerCase()
+                          .indexOf(searchQuery.toLowerCase()) !== -1
+              )
+            : selectedProf
+            ? users.filter(
                   (user) =>
                       JSON.stringify(user.profession) ===
                       JSON.stringify(selectedProf)
               )
-            : searchUser;
+            : users;
 
         const count = filteredUsers.length;
         const sortedUsers = _.orderBy(
@@ -94,15 +101,16 @@ const UsersList = () => {
                 )}
                 <div className="d-flex flex-column">
                     <SearchStatus length={count} />
-                    <form className="form-inline">
-                        <input
-                            className="form-control mr-sm-2"
-                            type="search"
-                            placeholder="Search"
-                            aria-label="Search"
-                            onChange={(e) => setSearchValue(e.target.value)}
-                        />
-                    </form>
+
+                    <input
+                        className="form-control mr-sm-2"
+                        type="search"
+                        placeholder="Search"
+                        aria-label="Search"
+                        onChange={handleSearchQuery}
+                        value={searchQuery}
+                    />
+
                     {count > 0 && (
                         <UserTable
                             users={usersCrop}
