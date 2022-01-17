@@ -113,8 +113,19 @@ const EditForm = () => {
             .update(userId, data)
             .then(() => history.push(`/users/${userId}`));
     };
+
+    const handleReturn = () => {
+        history.push(`/users/${userId}`);
+    };
     return (
         <div className="container mt-5">
+            <button
+                type="button"
+                className="btn btn-primary"
+                onClick={handleReturn}
+            >
+                <i className="bi bi-caret-left"></i>Назад
+            </button>
             <div className="row">
                 <div className="col-md-6 offset-md-3 shadow p-4">
                     {!loading ? (
